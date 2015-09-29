@@ -1,3 +1,5 @@
+polyquiz/entities/QuizAnswer.class
 polyquiz/PolyquizApplication.class
 polyquiz/SimpleCORSFilter.class
+polyquiz/entities/QuestionAnswer.class
 polyquiz/QuizAnswerController.class
