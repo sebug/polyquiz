@@ -25,6 +25,14 @@ public class QuizAnswer {
 	this.fullName = fullName;
     }
 
+    public QuestionAnswer[] getQuestionAnswers() {
+	return this.questionAnswers;
+    }
+
+    public void setQuestionAnswers(QuestionAnswer[] questionAnswers) {
+	this.questionAnswers = questionAnswers;
+    }
+
     @Override
     public String toString() {
 	return "QuizAnswer [id=" + id + ", fullName=" + fullName +

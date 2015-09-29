@@ -1,5 +1,8 @@
+polyquiz/SimpleCORSFilter.class
+polyquiz/entities/Answer.class
 polyquiz/entities/QuizAnswer.class
 polyquiz/PolyquizApplication.class
-polyquiz/SimpleCORSFilter.class
+polyquiz/QuizAnswerStoreBean.class
 polyquiz/entities/QuestionAnswer.class
 polyquiz/QuizAnswerController.class
+polyquiz/entities/Question.class

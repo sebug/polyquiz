@@ -2,14 +2,14 @@ package polyquiz.entities;
 
 public class QuestionAnswer {
     private String question;
-    private String[] answers;
+    private String[] answer;
 
     public QuestionAnswer() {
     }
 
-    public QuestionAnswer(String question, String[] answers) {
+    public QuestionAnswer(String question, String[] answer) {
 	this.question = question;
-	this.answers = answers;
+	this.answer = answer;
     }
 
     public String getQuestion() {
@@ -20,11 +20,11 @@ public class QuestionAnswer {
 	this.question = question;
     }
 
-    public String[] getAnswers() {
-	return answers;
+    public String[] getAnswer() {
+	return answer;
     }
 
-    public void setAnswers(String[] answers) {
-	this.answers = answers;
+    public void setAnswer(String[] answer) {
+	this.answer = answer;
     }
 }
