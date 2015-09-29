@@ -1,6 +1,10 @@
+/Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/QuestionController.java
 /Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/QuizAnswerController.java
 /Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/PolyquizApplication.java
+/Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/QuestionStoreBean.java
 /Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/SimpleCORSFilter.java
+/Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/entities/Question.java
 /Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/entities/QuestionAnswer.java
 /Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/QuizAnswerStoreBean.java
+/Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/entities/Answer.java
 /Users/sgfeller/Documents/PC/cours_combine_2015/polyquiz/src/main/java/polyquiz/entities/QuizAnswer.java

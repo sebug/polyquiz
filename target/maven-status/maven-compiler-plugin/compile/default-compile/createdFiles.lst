@@ -3,6 +3,8 @@ polyquiz/entities/Answer.class
 polyquiz/entities/QuizAnswer.class
 polyquiz/PolyquizApplication.class
 polyquiz/QuizAnswerStoreBean.class
+polyquiz/QuestionStoreBean.class
+polyquiz/QuestionController.class
 polyquiz/entities/QuestionAnswer.class
 polyquiz/QuizAnswerController.class
 polyquiz/entities/Question.class
