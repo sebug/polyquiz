@@ -9,11 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @RestController
 @SpringBootApplication
 public class PolyquizApplication {
-    @RequestMapping("/")
-    String home() {
-	return "Poly quiz home";
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(PolyquizApplication.class, args);
     }
