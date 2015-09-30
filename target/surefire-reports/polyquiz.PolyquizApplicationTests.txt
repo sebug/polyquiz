@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: polyquiz.PolyquizApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.347 sec - in polyquiz.PolyquizApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.326 sec - in polyquiz.PolyquizApplicationTests

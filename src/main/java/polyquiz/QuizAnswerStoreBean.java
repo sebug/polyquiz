@@ -23,6 +23,10 @@ public class QuizAnswerStoreBean {
 	return this.mongoTemplate.findAll(QuizAnswer.class);
     }
 
+    public QuizAnswer getQuizAnswerById(String id) {
+	return this.mongoTemplate.findById(id, QuizAnswer.class);
+    }
+
     public void storeQuizAnswer(QuizAnswer qa) {
 	this.mongoTemplate.insert(qa);
     }

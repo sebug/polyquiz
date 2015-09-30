@@ -3,6 +3,7 @@ package polyquiz;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import polyquiz.entities.QuizAnswer;
@@ -24,6 +25,12 @@ public class QuizAnswerController {
     public List<QuizAnswer> getAllQuizAnswers() {
 	log.info("Calling getAllQuizAnswers");
 	return this.quizAnswerStoreBean.getAllQuizAnswers();
+    }
+
+    @RequestMapping(value="/byid/{id}")
+    public QuizAnswer getQuizAnswerById(@PathVariable String id) {
+	log.info("Calling getQuizAnswerById " + id);
+	return this.quizAnswerStoreBean.getQuizAnswerById(id);
     }
 
     @RequestMapping(value="/create")
