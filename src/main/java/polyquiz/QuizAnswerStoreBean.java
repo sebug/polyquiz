@@ -23,6 +23,10 @@ public class QuizAnswerStoreBean {
 	return this.mongoTemplate.findAll(QuizAnswer.class);
     }
 
+    public List<QuizAnswer> getQuizAnswersByFullName(String fullName) {
+	return this.mongoTemplate.find(new Query(where("fullName").is(fullName)), QuizAnswer.class);
+    }
+
     public QuizAnswer getQuizAnswerById(String id) {
 	return this.mongoTemplate.findById(id, QuizAnswer.class);
     }

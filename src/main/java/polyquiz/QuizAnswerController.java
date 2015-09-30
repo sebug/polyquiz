@@ -33,9 +33,20 @@ public class QuizAnswerController {
 	return this.quizAnswerStoreBean.getQuizAnswerById(id);
     }
 
+    @RequestMapping(value="/byname/{fullname}")
+    public List<QuizAnswer> getQuizAnswersByFullName(@PathVariable String fullname) {
+	log.info("Calling getQuizAnswersByFullName " + fullname);
+	return this.quizAnswerStoreBean.getQuizAnswersByFullName(fullname);
+    }
+
     @RequestMapping(value="/create")
     public QuizAnswer create(@RequestBody QuizAnswer content) {
 	log.info(content);
+	List<QuizAnswer> existingEntries = this.quizAnswerStoreBean.getQuizAnswersByFullName(content.getFullName());
+	if (existingEntries.size() > 0) {
+	    log.info("Already found an entry.");
+	    return existingEntries.get(0);
+	}
 	this.quizAnswerStoreBean.storeQuizAnswer(content);
 	return content;
     }
