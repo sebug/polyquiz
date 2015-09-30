@@ -5,8 +5,14 @@
   </head>
   <body>
     <h1>Polycom Quiz Application</h1>
+    <div class="quizanswers">
     <h2>Quiz Answers</h2>
-    <p><span data-bind="text: quizAnswers().length"></span></p>
+    <!-- ko foreach: quizAnswers() -->
+    <div class="quizanswer">
+      <span class="fullname" data-bind="text: fullName"></span>
+    </div>
+    <!-- /ko -->
+    </div>
 
     <h2>Questions</h2>
     <p><span data-bind="text: questions().length"></span></p>
