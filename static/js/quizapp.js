@@ -3,7 +3,8 @@
     var getRequest,
 	fetchQuizAnswers,
 	fetchQuestions,
-	viewModel;
+	viewModel,
+	attachFaveletLink;
 
     getRequest = function (url) {
 	return function (andThen) {
@@ -27,7 +28,22 @@
 	questions: ko.observableArray([])
     };
 
+    attachFaveletLink = function (answer) {
+	var invocation;
+	answer.faveletLink = ko.observable('');
+	invocation = new XMLHttpRequest();
+	invocation.open('GET', '/quiz_answer/favelet/' + answer.id, true);
+	invocation.onload = function () {
+	    answer.faveletLink('javascript:' + this.responseText);
+	};
+	invocation.send();
+    };
+
     fetchQuizAnswers(function (answers) {
+	var i;
+	for (i = 0; i < answers.length; i += 1) {
+	    attachFaveletLink(answers[i]);
+	}
 	viewModel.quizAnswers(answers);
     });
 

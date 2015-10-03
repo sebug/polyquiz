@@ -9,7 +9,7 @@
     <h2>Quiz Answers</h2>
     <!-- ko foreach: quizAnswers() -->
     <div class="quizanswer">
-      <span class="fullname" data-bind="text: fullName"></span>
+      <span class="fullname" data-bind="text: fullName"></span> <a data-bind="attr: { href: faveletLink }">Fill answers for <span class="fullname" data-bind="text: fullName"></span></a>
     </div>
     <!-- /ko -->
     </div>

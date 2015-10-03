@@ -15,6 +15,11 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
+
 @RestController
 @RequestMapping(value="quiz_answer")
 public class QuizAnswerController {
@@ -58,11 +63,13 @@ public class QuizAnswerController {
     }
 
     @RequestMapping(value="/favelet/{id}")
-    public String getFavelet(@PathVariable String id) {
+    public String getFavelet(@PathVariable String id) throws JsonProcessingException, UnsupportedEncodingException {
 	log.info("Calling getFavelet " + id);
 	QuizAnswer qa = this.quizAnswerStoreBean.getQuizAnswerById(id);
+	ObjectMapper mapper = new ObjectMapper();
+	String jsonString = mapper.writeValueAsString(qa);
 	
-	return faveletPlaceholder;
+	return URLEncoder.encode(faveletPlaceholder.replace("%%ENTRY%%", jsonString), "UTF-8");
     }
 
     @RequestMapping(value="/create")
