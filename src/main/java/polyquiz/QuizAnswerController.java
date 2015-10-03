@@ -66,10 +66,19 @@ public class QuizAnswerController {
     public String getFavelet(@PathVariable String id) throws JsonProcessingException, UnsupportedEncodingException {
 	log.info("Calling getFavelet " + id);
 	QuizAnswer qa = this.quizAnswerStoreBean.getQuizAnswerById(id);
+	if (qa.getQuestionAnswers() == null) {
+	    return "";
+	}
 	ObjectMapper mapper = new ObjectMapper();
 	String jsonString = mapper.writeValueAsString(qa);
 	
-	return URLEncoder.encode(faveletPlaceholder.replace("%%ENTRY%%", jsonString), "UTF-8");
+	return URLEncoder.encode(faveletPlaceholder.replace("%%ENTRY%%", jsonString), "UTF-8").replaceAll("\\+", "%20")
+	    .replaceAll("\\%21", "!")
+	    .replaceAll("\\%27", "'")
+	    .replaceAll("\\%28", "(")
+	    .replaceAll("\\%29", ")")
+	    .replaceAll("\\%7E", "~")
+	    .replaceAll("%09", "");
     }
 
     @RequestMapping(value="/create")
@@ -85,7 +94,6 @@ public class QuizAnswerController {
     }
 
     private String faveletPlaceholder = "(function () {" +
-	"    'use strict';" +
 	"    var mainFrame = document.getElementsByTagName('frame')[1]," +
 	"	tr," +
 	"	trs," +
@@ -113,7 +121,6 @@ public class QuizAnswerController {
 	"	questionText = mainFrame.contentDocument.getElementsByTagName('b')[0].innerText;" +
 	"    }" +
 	"" +
-	"    // Find answer" +
 	"    selectedQuestion = undefined;" +
 	"    for (i = 0; i < entry.questionAnswers.length && !selectedQuestion; i += 1) {" +
 	"	q = entry.questionAnswers[i];" +

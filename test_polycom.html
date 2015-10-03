@@ -1,0 +1,399 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Polycom</title>
+    <meta name="viewport" content="initial-scale=1.0">
+<style>
+.correct {
+  color: green;
+}
+.partial {
+  color: blue;
+}
+.error {
+  color: red;
+}
+.wasgiven {
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+<h1>Test Polycom</h1>
+<!-- ko if: showDebug -->
+<p><input type="button" data-bind="click: sendQuizAnswers" value="Envoyer les réponses au serveur" /></p>
+<!--<p><input type="button" data-bind="click: sendQuestions" value="Envoyer les questions" /></p>-->
+<p><input type="text" data-bind="value: answerRequestName" /><input type="button" value="Afficher réponses" data-bind="click: showAnswers" /></p>
+<!-- /ko -->
+<!-- ko foreach: currentlyDisplayedAnswers -->
+<p><b><span data-bind="text: Question"></span></b></p>
+<ul>
+<!-- ko foreach: ProposedAnswers -->
+<li><span data-bind="text: $data, css: { 'correct': $parent.isAnswerCorrect($data),
+  error: $parent.isAnswerError($data), wasgiven: $parent.isAnswerGiven($data)
+ }"></span></li>
+<!-- /ko -->
+</ul>
+<p><span data-bind="text: evaluation.Text, css: { 'correct': evaluation.CorrectAnswersGiven === evaluation.NumberOfCorrectAnswers && evaluation.BadAnswersGiven === 0,
+  'partial': evaluation.CorrectAnswersGiven < evaluation.NumberOfCorrectAnswers || evaluation.BadAnswersGiven > 0,
+  'error': evaluation.CorrectAnswersGiven === 0 && evaluation.BadAnswersGiven > 0 }"></p>
+
+<!-- /ko -->
+<!-- ko if: !showAskName() && !showQuestions() -->
+<p><input type="button" value="Commencer le test" data-bind="click: startNewTest" /></p>
+<!-- /ko -->
+<!-- ko if: showAskName() -->
+<p>Nom: <input type="text" data-bind="value: name" /> <input type="button" value="Première question" data-bind="click: confirmName" /></p>
+<!-- /ko -->
+<!-- ko if: showQuestions() -->
+<!-- ko if: showEvaluation() -->
+<p><span data-bind="text: currentEvaluation().Text, css: { 'correct': currentEvaluation().CorrectAnswersGiven === currentEvaluation().NumberOfCorrectAnswers && currentEvaluation().BadAnswersGiven === 0,
+  'partial': currentEvaluation().CorrectAnswersGiven < currentEvaluation().NumberOfCorrectAnswers || currentEvaluation().BadAnswersGiven > 0,
+  'error': currentEvaluation().CorrectAnswersGiven === 0 && currentEvaluation().BadAnswersGiven > 0 }"></span></p>
+
+<p><input type="button" value="Prochaine Question" data-bind="click: hideEvaluation" /></p>
+<!-- /ko -->
+<!-- ko if: !showEvaluation() -->
+<!-- ko if: currentQuestion() -->
+<div class="questioncontainer">
+<p class="question"><span data-bind="text: currentQuestion().Question"></span></p>
+
+<!-- ko foreach: currentQuestion().ProposedAnswers -->
+<p><label><input type="checkbox" data-bind="checked: $parent.currentQuestion().answer, checkedValue: $data" /> <span data-bind="text: $data"></span></label></p>
+<!-- /ko -->
+
+<p><input type="button" value="Valider" data-bind="click: nextQuestion" /></p>
+</div>
+<!-- /ko -->
+<!-- /ko -->
+<!-- /ko -->
+<script src="knockout.js"></script>
+<script>
+var evaluate = (function () {
+  var questions = [
+    { Question: "A quoi sert la touche 'Rouge avec un triangle'?",
+      Answers: [ { Answer: "A rien, elle est désactivée.", Correct: false },
+                 { Answer: "C'est la touche 'Appel de détresse'.", Correct: true },
+                 { Answer: "A allumer ou éteindre la radio.", Correct: false },
+                 { Answer: "C'est la touche de 'Reset' qui permet de revenir aux paramètres d'usine.", Correct: false }]
+    }
+  ],
+  showAskName = ko.observable(false),
+      showQuestions = ko.observable(false),
+url = "http://localhost:8080/",
+      sendQuestion = function (question) {
+	  var invocation = new XMLHttpRequest();
+	  invocation.open('POST', url + 'question/create', true);
+	  invocation.setRequestHeader('Content-Type', 'application/json');
+	  invocation.onload = function () {
+	      console.log(this.responseText);
+	  };
+	  invocation.send(JSON.stringify(question));
+      },
+      sendQuizAnswer = function (quizAnswer) {
+	  var invocation = new XMLHttpRequest();
+	  invocation.open('POST', url + 'quiz_answer/create', true);
+	  invocation.setRequestHeader('Content-Type', 'application/json');
+	  invocation.onload = function() {
+	      console.log(this.responseText);
+	  };
+	  invocation.send(JSON.stringify(quizAnswer));
+      },
+      transformQuestionAnswers = function (questionAnswers) {
+	  var i, result = [];
+	  if (!questionAnswers) {
+	      return questionAnswers;
+	  }
+	  for (i = 0; i < questionAnswers.length; i += 1) {
+	      result.push({
+		  question: questionAnswers[i].Question,
+		  answer: questionAnswers[i].answer
+	      });
+	  }
+	  return result;
+      },
+      transformAnswers = function (answers) {
+	  var i, result = [];
+	  if (!answers) {
+	      return answers;
+	  }
+
+	  for (i = 0; i < answers.length; i += 1) {
+	      result.push({
+		  answer: answers[i].Answer,
+		  correct: answers[i].Correct
+	      });
+	  }
+
+	  return result;
+      },
+  name = ko.observable(''),
+  shuffle = function (questions) {
+    var   rnd = function (low, high) {
+            var rf = Math.random(),
+                ri = Math.floor(rf * (high - low));
+            return ri + low;
+          },
+          r,
+          tmp,
+          reference = [];
+    for (i = 0; i < questions.length; i += 1) {
+      reference.push(i);
+    }
+
+    // in-place shuffle
+    for (i = 0; i < questions.length; i += 1) {
+      r = rnd(i,questions.length);
+      if (r != i) {
+        tmp = questions[r];
+        questions[r] = questions[i];
+        questions[i] = tmp;
+        
+        tmp = reference[r];
+        reference[r] = reference[i];
+        reference[i] = tmp;
+      }
+    }
+  },
+  viewModel = {
+    message: "Ohai",
+    startNewTest: function () {
+      name('');
+      showAskName(true);
+      showQuestions(false);
+    },
+    confirmName: function () {
+      var questionsCopy = [],
+          i,
+          j,
+          question;
+      showAskName(false);
+      showQuestions(true);
+      for (i = 0; i < questions.length; i += 1) {
+        question = {
+          Question: questions[i].Question,
+          ProposedAnswers: []
+        };
+        for (j = 0; j < questions[i].Answers.length; j += 1) {
+          question.ProposedAnswers.push(questions[i].Answers[j].Answer);
+        }
+        shuffle(question.ProposedAnswers);
+        question.answer = ko.observableArray([]);
+        questionsCopy.push(question);
+      }
+      shuffle(questionsCopy);
+      
+      viewModel.questions(questionsCopy);
+      viewModel.currentQuestion(viewModel.questions()[0]);
+    },
+    evaluateAnswer: function (question) {
+      var correspondingAnswer, i, questionAnswer, numerOfCorrectAnswers,
+          correctAnswersGiven, badAnswersGiven, j,
+          result, answer;
+      for (i = 0; i < questions.length && !correspondingAnswer; i += 1) {
+        if (questions[i].Question === question.Question) {
+          correspondingAnswer = questions[i];
+        }
+      }
+
+      numberOfCorrectAnswers = 0;
+      for (i = 0; i < correspondingAnswer.Answers.length; i += 1) {
+        if (correspondingAnswer.Answers[i].Correct) {
+          numberOfCorrectAnswers += 1;
+        }
+      }
+
+      if (typeof question.answer === 'function') {
+        answer = question.answer();
+      } else {
+        answer = question.answer;
+      }
+
+      correctAnswersGiven = 0;
+      badAnswersGiven = 0;
+      for (i = 0; i < answer.length; i += 1) {
+        for (j = 0; j < correspondingAnswer.Answers.length; j += 1) {
+          if (correspondingAnswer.Answers[j].Answer === answer[i]) {
+            if (correspondingAnswer.Answers[j].Correct) {
+              correctAnswersGiven += 1;
+            } else {
+              badAnswersGiven += 1;
+            }
+          }
+        }
+      }
+
+      result = {
+          CorrectAnswersGiven: correctAnswersGiven,
+          BadAnswersGiven: badAnswersGiven,
+          NumberOfCorrectAnswers: numberOfCorrectAnswers
+        };
+      if (correctAnswersGiven == numberOfCorrectAnswers && badAnswersGiven == 0) {
+        result.Text = 'Correct';
+      } else if (correctAnswersGiven > 0) {
+        result.Text = 'En partie correct';
+      } else {
+        result.Text = 'Faux';
+      }
+      return result;
+    },
+    hideEvaluation: function () {
+      viewModel.showEvaluation(false);
+      if (!viewModel.showQuestions()) {
+        viewModel.showAnswers(viewModel.name());
+      }
+    },
+    persistAnswers: function () {
+      localStorage[viewModel.name()] = JSON.stringify(ko.toJS(viewModel.questions()));
+    },
+    nextQuestion: function () {
+      var currentQuestionIndex;
+      viewModel.currentEvaluation(viewModel.evaluateAnswer(viewModel.currentQuestion()));
+      viewModel.showEvaluation(true);
+
+
+      for (i = 0; i < viewModel.questions().length && currentQuestionIndex === undefined; i += 1) {
+        if (viewModel.questions()[i] === viewModel.currentQuestion()) {
+          currentQuestionIndex = i;
+        }
+      }
+
+      if (currentQuestionIndex >= viewModel.questions().length - 1) {
+        viewModel.persistAnswers();
+        viewModel.showQuestions(false);
+        viewModel.showAnswers(viewModel.name());
+      } else {
+        viewModel.currentQuestion(viewModel.questions()[currentQuestionIndex + 1]);
+      }
+    },
+    questions: ko.observableArray([]),
+    currentQuestion: ko.observable(),
+    currentEvaluation: ko.observable({}),
+    showAskName: showAskName,
+    showQuestions: showQuestions,
+    showDebug: location.href.indexOf('debug') >= 0,
+    showEvaluation: ko.observable(false),
+    name: name,
+    answerRequestName: ko.observable(''),
+    getClasses: function (answer, answerText) {
+	var correspondingSolution,
+              i,
+              innerAnswer,
+              wasGiven,
+              result = [];
+
+          if (typeof answer.answer == 'function') {
+            innerAnswer = answer.answer();
+          } else {
+            innerAnswer = answer.answer;
+          }
+
+          wasGiven = false;
+          for (i = 0; i < innerAnswer.length; i += 1) {
+            if (innerAnswer[i] === answerText) {
+              wasGiven = true;
+            }
+          }
+
+          if (wasGiven) {
+            result.push('wasgiven');
+          }
+          
+
+          for (i = 0; i < questions.length && !correspondingSolution; i += 1) {
+            if (questions[i].Question == answer.Question) {
+              correspondingSolution = questions[i];
+            }
+          }
+
+          for (i = 0; i < correspondingSolution.Answers.length; i += 1) {
+            if (correspondingSolution.Answers[i].Answer === answerText) {
+              if (correspondingSolution.Answers[i].Correct) {
+                result.push('correct');
+              } else {
+                result.push('error');
+              }
+            }
+          }
+          return result;
+    },
+    showAnswers: function (name) {
+      var answers, i;
+      if (name === viewModel) {
+        name = viewModel.answerRequestName();
+      }
+      name = name || viewModel.answerRequestName();
+      answers = JSON.parse(localStorage[name]);
+      for (i = 0; i < answers.length; i += 1) {
+        answers[i].evaluation = viewModel.evaluateAnswer(answers[i]);
+        answers[i].isAnswerCorrect = function (answerText) {
+          var resultClasses = viewModel.getClasses(this, answerText),
+              i;
+          for (i = 0; i < resultClasses.length; i += 1) {
+            if (resultClasses[i] === 'correct') {
+              return true;
+            }
+          }
+          return false;
+        };
+        answers[i].isAnswerError = function (answerText) {
+          var resultClasses = viewModel.getClasses(this, answerText),
+              i, wasGiven = false, wasWrong = false;
+          for (i = 0; i < resultClasses.length; i += 1) {
+            if (resultClasses[i] === 'error') {
+              wasWrong = true;
+            } else if (resultClasses[i] == 'wasgiven') {
+              wasGiven = true;
+            }
+          }
+          return wasGiven && wasWrong;
+        };
+        answers[i].isAnswerGiven = function (answerText) {
+          var resultClasses = viewModel.getClasses(this, answerText),
+              i;
+          for (i = 0; i < resultClasses.length; i += 1) {
+            if (resultClasses[i] === 'wasgiven') {
+              return true;
+            }
+          }
+          return false;
+        };
+      }
+      viewModel.currentlyDisplayedAnswers(answers);
+    },
+      sendQuizAnswers: function () {
+	  var k, entries = [], i;
+	  for (k in localStorage) {
+	      if (k.indexOf('com') !== 0) {
+		  entries.push({
+		      fullName: k,
+		      questionAnswers: transformQuestionAnswers(JSON.parse(localStorage[k]))
+		  });
+	      }
+	  }
+
+	  for (i = 0; i < entries.length; i += 1) {
+	      sendQuizAnswer(entries[i]);
+	  }
+      },
+      sendQuestions: function () {
+	  var i, transformed = [];
+	  for (i = 0; i < questions.length; i += 1) {
+	      transformed.push({
+		  question: questions[i].Question,
+		  answers: transformAnswers(questions[i].Answers)
+	      });
+	  }
+	  
+	  for (i = 0; i < transformed.length; i += 1) {
+	      sendQuestion(transformed[i]);
+	  }
+      },
+    currentlyDisplayedAnswers: ko.observable()
+  };
+
+  ko.applyBindings(viewModel);
+}());
+</script>
+</body>
+</html>
